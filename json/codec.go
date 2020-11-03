@@ -659,7 +659,7 @@ func appendStructFields(fields []structField, t reflect.Type, offset uintptr, se
 				reflect.Uint16,
 				reflect.Uint32,
 				reflect.Uint64:
-				codec.encode = constructStringEncodeFunc(codec.encode)
+				codec.encode = constructIntToStringEncodeFunc(codec.encode)
 				codec.decode = constructStringToIntDecodeFunc(typ, codec.decode)
 			case reflect.Bool,
 				reflect.Float32,

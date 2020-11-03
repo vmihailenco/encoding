@@ -29,47 +29,47 @@ func (e encoder) encodeBool(b []byte, p unsafe.Pointer) ([]byte, error) {
 }
 
 func (e encoder) encodeInt(b []byte, p unsafe.Pointer) ([]byte, error) {
-	return appendInt(b, int64(*(*int)(p))), nil
+	return e.appendInt(b, int64(*(*int)(p))), nil
 }
 
 func (e encoder) encodeInt8(b []byte, p unsafe.Pointer) ([]byte, error) {
-	return appendInt(b, int64(*(*int8)(p))), nil
+	return e.appendInt(b, int64(*(*int8)(p))), nil
 }
 
 func (e encoder) encodeInt16(b []byte, p unsafe.Pointer) ([]byte, error) {
-	return appendInt(b, int64(*(*int16)(p))), nil
+	return e.appendInt(b, int64(*(*int16)(p))), nil
 }
 
 func (e encoder) encodeInt32(b []byte, p unsafe.Pointer) ([]byte, error) {
-	return appendInt(b, int64(*(*int32)(p))), nil
+	return e.appendInt(b, int64(*(*int32)(p))), nil
 }
 
 func (e encoder) encodeInt64(b []byte, p unsafe.Pointer) ([]byte, error) {
-	return appendInt(b, *(*int64)(p)), nil
+	return e.appendInt(b, *(*int64)(p)), nil
 }
 
 func (e encoder) encodeUint(b []byte, p unsafe.Pointer) ([]byte, error) {
-	return appendUint(b, uint64(*(*uint)(p))), nil
+	return e.appendUint(b, uint64(*(*uint)(p))), nil
 }
 
 func (e encoder) encodeUintptr(b []byte, p unsafe.Pointer) ([]byte, error) {
-	return appendUint(b, uint64(*(*uintptr)(p))), nil
+	return e.appendUint(b, uint64(*(*uintptr)(p))), nil
 }
 
 func (e encoder) encodeUint8(b []byte, p unsafe.Pointer) ([]byte, error) {
-	return appendUint(b, uint64(*(*uint8)(p))), nil
+	return e.appendUint(b, uint64(*(*uint8)(p))), nil
 }
 
 func (e encoder) encodeUint16(b []byte, p unsafe.Pointer) ([]byte, error) {
-	return appendUint(b, uint64(*(*uint16)(p))), nil
+	return e.appendUint(b, uint64(*(*uint16)(p))), nil
 }
 
 func (e encoder) encodeUint32(b []byte, p unsafe.Pointer) ([]byte, error) {
-	return appendUint(b, uint64(*(*uint32)(p))), nil
+	return e.appendUint(b, uint64(*(*uint32)(p))), nil
 }
 
 func (e encoder) encodeUint64(b []byte, p unsafe.Pointer) ([]byte, error) {
-	return appendUint(b, *(*uint64)(p)), nil
+	return e.appendUint(b, uint64(*(*uint)(p))), nil
 }
 
 func (e encoder) encodeFloat32(b []byte, p unsafe.Pointer) ([]byte, error) {
@@ -299,7 +299,7 @@ func (e encoder) encodeTime(b []byte, p unsafe.Pointer) ([]byte, error) {
 }
 
 func (e encoder) encodeArray(b []byte, p unsafe.Pointer, n int, size uintptr, t reflect.Type, encode encodeFunc) ([]byte, error) {
-	var start = len(b)
+	start := len(b)
 	var err error
 	b = append(b, '[')
 
@@ -337,7 +337,7 @@ func (e encoder) encodeMap(b []byte, p unsafe.Pointer, t reflect.Type, encodeKey
 		sortKeys(keys)
 	}
 
-	var start = len(b)
+	start := len(b)
 	var err error
 	b = append(b, '{')
 
@@ -394,7 +394,7 @@ func (e encoder) encodeMapStringInterface(b []byte, p unsafe.Pointer) ([]byte, e
 
 		if len(m) != 0 {
 			var err error
-			var i = 0
+			i := 0
 
 			for k, v := range m {
 				if i != 0 {
@@ -426,7 +426,7 @@ func (e encoder) encodeMapStringInterface(b []byte, p unsafe.Pointer) ([]byte, e
 	}
 	sort.Sort(s)
 
-	var start = len(b)
+	start := len(b)
 	var err error
 	b = append(b, '{')
 
@@ -472,7 +472,7 @@ func (e encoder) encodeMapStringRawMessage(b []byte, p unsafe.Pointer) ([]byte, 
 
 		if len(m) != 0 {
 			var err error
-			var i = 0
+			i := 0
 
 			for k, v := range m {
 				if i != 0 {
@@ -505,7 +505,7 @@ func (e encoder) encodeMapStringRawMessage(b []byte, p unsafe.Pointer) ([]byte, 
 	}
 	sort.Sort(s)
 
-	var start = len(b)
+	start := len(b)
 	var err error
 	b = append(b, '{')
 
@@ -757,7 +757,7 @@ func (e encoder) encodeMapStringBool(b []byte, p unsafe.Pointer) ([]byte, error)
 }
 
 func (e encoder) encodeStruct(b []byte, p unsafe.Pointer, st *structType) ([]byte, error) {
-	var start = len(b)
+	start := len(b)
 	var err error
 	var k string
 	var n int

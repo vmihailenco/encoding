@@ -66,6 +66,12 @@ const (
 	// package).
 	SortMapKeys
 
+	// StringifyLargeInts is a formatting flag used to encode integers bigger
+	// than 9007199254740991 as a JSON-encoded string. This extra level
+	// of encoding is sometimes used when communicating with JavaScript programs.
+	StringifyLargeInts
+	stringifyInts
+
 	// TrustRawMessage is a performance optimization flag to skip value
 	// checking of raw messages. It should only be used if the values are
 	// known to be valid json (e.g., they were created by json.Unmarshal).
@@ -271,7 +277,7 @@ func Indent(dst *bytes.Buffer, src []byte, prefix, indent string) error {
 // Marshal is documented at https://golang.org/pkg/encoding/json/#Marshal
 func Marshal(x interface{}) ([]byte, error) {
 	var err error
-	var buf = encoderBufferPool.Get().(*encoderBuffer)
+	buf := encoderBufferPool.Get().(*encoderBuffer)
 
 	if buf.data, err = Append(buf.data[:0], x, EscapeHTML|SortMapKeys); err != nil {
 		return nil, err
@@ -509,7 +515,7 @@ func (enc *Encoder) Encode(v interface{}) error {
 	}
 
 	var err error
-	var buf = encoderBufferPool.Get().(*encoderBuffer)
+	buf := encoderBufferPool.Get().(*encoderBuffer)
 
 	buf.data, err = Append(buf.data[:0], v, enc.flags)
 
@@ -564,6 +570,17 @@ func (enc *Encoder) SetSortMapKeys(on bool) {
 		enc.flags |= SortMapKeys
 	} else {
 		enc.flags &= ^SortMapKeys
+	}
+}
+
+// SetStringifyLargeInts is an extension to the standard encoding/json package which
+// allows the program to toggle encoding integers bigger than 9007199254740991
+// as strings on and off.
+func (enc *Encoder) SetStringifyLargeInts(on bool) {
+	if on {
+		enc.flags |= StringifyLargeInts
+	} else {
+		enc.flags &= ^StringifyLargeInts
 	}
 }
 
