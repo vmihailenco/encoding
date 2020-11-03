@@ -19,24 +19,28 @@ type codec struct {
 	decode decodeFunc
 }
 
-type encoder struct{ flags AppendFlags }
-type decoder struct{ flags ParseFlags }
-
-type encodeFunc func(encoder, []byte, unsafe.Pointer) ([]byte, error)
-type decodeFunc func(decoder, []byte, unsafe.Pointer) ([]byte, error)
-
-type emptyFunc func(unsafe.Pointer) bool
-type sortFunc func([]reflect.Value)
-
-var (
-	// Eventually consistent cache mapping go types to dynamically generated
-	// codecs.
-	//
-	// Note: using a uintptr as key instead of reflect.Type shaved ~15ns off of
-	// the ~30ns Marhsal/Unmarshal functions which were dominated by the map
-	// lookup time for simple types like bool, int, etc..
-	cache unsafe.Pointer // map[unsafe.Pointer]codec
+type (
+	encoder struct{ flags AppendFlags }
+	decoder struct{ flags ParseFlags }
 )
+
+type (
+	encodeFunc func(encoder, []byte, unsafe.Pointer) ([]byte, error)
+	decodeFunc func(decoder, []byte, unsafe.Pointer) ([]byte, error)
+)
+
+type (
+	emptyFunc func(unsafe.Pointer) bool
+	sortFunc  func([]reflect.Value)
+)
+
+// Eventually consistent cache mapping go types to dynamically generated
+// codecs.
+//
+// Note: using a uintptr as key instead of reflect.Type shaved ~15ns off of
+// the ~30ns Marhsal/Unmarshal functions which were dominated by the map
+// lookup time for simple types like bool, int, etc..
+var cache unsafe.Pointer // map[unsafe.Pointer]codec
 
 func cacheLoad() map[unsafe.Pointer]codec {
 	p := atomic.LoadPointer(&cache)
@@ -624,7 +628,7 @@ func appendStructFields(fields []structField, t reflect.Type, offset uintptr, se
 				reflect.Uint16,
 				reflect.Uint32,
 				reflect.Uint64:
-				codec.encode = constructStringEncodeFunc(codec.encode)
+				codec.encode = constructIntToStringEncodeFunc(codec.encode)
 				codec.decode = constructStringToIntDecodeFunc(typ, codec.decode)
 			case reflect.Bool,
 				reflect.Float32,
