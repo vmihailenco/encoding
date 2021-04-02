@@ -26,12 +26,25 @@ func TestStringifyLargeInts(t *testing.T) {
 		enc := NewEncoder(&buf)
 		enc.SetStringifyLargeInts(true)
 
-		err := enc.Encode(n)
-		require.Nil(t, err)
+		{
+			err := enc.Encode(n)
+			require.Nil(t, err)
 
-		got := buf.String()
-		wanted := fmt.Sprintf(`"%d"`+"\n", n)
-		require.Equal(t, wanted, got)
+			got := buf.String()
+			wanted := fmt.Sprintf(`"%d"`+"\n", n)
+			require.Equal(t, wanted, got)
+		}
+
+		{
+			buf.Reset()
+
+			err := enc.Encode(Number(fmt.Sprint(n)))
+			require.Nil(t, err)
+
+			got := buf.String()
+			wanted := fmt.Sprintf(`"%d"`+"\n", n)
+			require.Equal(t, wanted, got)
+		}
 	}
 }
 
