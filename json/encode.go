@@ -123,9 +123,28 @@ func (e encoder) encodeNumber(b []byte, p unsafe.Pointer) ([]byte, error) {
 	}
 
 	d := decoder{}
-	_, _, _, err := d.parseNumber(stringToBytes(string(n)))
+	_, _, kind, err := d.parseNumber(stringToBytes(string(n)))
 	if err != nil {
 		return b, err
+	}
+
+	if e.flags&StringifyLargeInts == 0 {
+		return append(b, n...), nil
+	}
+
+	switch kind {
+	case Uint:
+		n, err := strconv.ParseUint(string(n), 10, 64)
+		if err != nil {
+			return b, err
+		}
+		return e.appendUint(b, n), nil
+	case Int:
+		n, err := strconv.ParseInt(string(n), 10, 64)
+		if err != nil {
+			return b, err
+		}
+		return e.appendInt(b, n), nil
 	}
 
 	return append(b, n...), nil
@@ -550,7 +569,7 @@ func (e encoder) encodeMapStringString(b []byte, p unsafe.Pointer) ([]byte, erro
 		b = append(b, '{')
 
 		if len(m) != 0 {
-			var i = 0
+			i := 0
 
 			for k, v := range m {
 				if i != 0 {
@@ -610,7 +629,7 @@ func (e encoder) encodeMapStringStringSlice(b []byte, p unsafe.Pointer) ([]byte,
 		return append(b, "null"...), nil
 	}
 
-	var stringSize = unsafe.Sizeof("")
+	stringSize := unsafe.Sizeof("")
 
 	if (e.flags & SortMapKeys) == 0 {
 		// Optimized code path when the program does not need the map keys to be
@@ -619,7 +638,7 @@ func (e encoder) encodeMapStringStringSlice(b []byte, p unsafe.Pointer) ([]byte,
 
 		if len(m) != 0 {
 			var err error
-			var i = 0
+			i := 0
 
 			for k, v := range m {
 				if i != 0 {
@@ -652,7 +671,7 @@ func (e encoder) encodeMapStringStringSlice(b []byte, p unsafe.Pointer) ([]byte,
 	}
 	sort.Sort(s)
 
-	var start = len(b)
+	start := len(b)
 	var err error
 	b = append(b, '{')
 
@@ -697,7 +716,7 @@ func (e encoder) encodeMapStringBool(b []byte, p unsafe.Pointer) ([]byte, error)
 		b = append(b, '{')
 
 		if len(m) != 0 {
-			var i = 0
+			i := 0
 
 			for k, v := range m {
 				if i != 0 {
