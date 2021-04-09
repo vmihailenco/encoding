@@ -2,7 +2,6 @@ package json
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"math"
 	"testing"
@@ -55,7 +54,7 @@ func TestStringifyAndLargeInts(t *testing.T) {
 
 	test := &Test{Foo: math.MaxInt64}
 
-	b, err := json.Marshal(test)
+	b, err := Marshal(test)
 	require.Nil(t, err)
 	require.Equal(t, `{"Foo":"9223372036854775807"}`, string(b))
 
