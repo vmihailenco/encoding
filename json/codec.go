@@ -104,8 +104,8 @@ func constructCodec(t reflect.Type, seen map[reflect.Type]*structType, canAddr b
 	case bytesType:
 		c = codec{encode: encoder.encodeBytes, decode: decoder.decodeBytes}
 
-	case durationType:
-		c = codec{encode: encoder.encodeDuration, decode: decoder.decodeDuration}
+	// case durationType:
+	// 	c = codec{encode: encoder.encodeDuration, decode: decoder.decodeDuration}
 
 	case timeType:
 		c = codec{encode: encoder.encodeTime, decode: decoder.decodeTime}
@@ -119,8 +119,8 @@ func constructCodec(t reflect.Type, seen map[reflect.Type]*structType, canAddr b
 	case numberPtrType:
 		c = constructPointerCodec(numberPtrType, nil)
 
-	case durationPtrType:
-		c = constructPointerCodec(durationPtrType, nil)
+	// case durationPtrType:
+	// 	c = constructPointerCodec(durationPtrType, nil)
 
 	case timePtrType:
 		c = constructPointerCodec(timePtrType, nil)
