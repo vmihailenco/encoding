@@ -83,9 +83,9 @@ func (e encoder) encodeFloat64(b []byte, p unsafe.Pointer) ([]byte, error) {
 func (e encoder) encodeFloat(b []byte, f float64, bits int) ([]byte, error) {
 	switch {
 	case math.IsNaN(f):
-		return b, &UnsupportedValueError{Value: reflect.ValueOf(f), Str: "NaN"}
+		return append(b, "null"...), nil
 	case math.IsInf(f, 0):
-		return b, &UnsupportedValueError{Value: reflect.ValueOf(f), Str: "inf"}
+		return append(b, "null"...), nil
 	}
 
 	// Convert as if by ES6 number to string conversion.
