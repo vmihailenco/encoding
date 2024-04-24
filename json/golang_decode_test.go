@@ -18,6 +18,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/require"
 )
 
 type T struct {
@@ -1851,9 +1853,12 @@ func TestUnmarshalNulls(t *testing.T) {
 	}
 	if !nulls.Bool || nulls.Int != 2 || nulls.Int8 != 3 || nulls.Int16 != 4 || nulls.Int32 != 5 || nulls.Int64 != 6 ||
 		nulls.Uint != 7 || nulls.Uint8 != 8 || nulls.Uint16 != 9 || nulls.Uint32 != 10 || nulls.Uint64 != 11 ||
-		nulls.Float32 != 12.1 || nulls.Float64 != 13.1 || nulls.String != "14" {
+		nulls.String != "14" {
 		t.Errorf("Unmarshal of null values affected primitives")
 	}
+
+	require.True(t, math.IsNaN(float64(nulls.Float32)))
+	require.True(t, math.IsNaN(nulls.Float64))
 
 	if nulls.PBool != nil {
 		t.Errorf("Unmarshal of null did not clear nulls.PBool")

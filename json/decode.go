@@ -226,6 +226,7 @@ func (d decoder) decodeUint64(b []byte, p unsafe.Pointer) ([]byte, error) {
 
 func (d decoder) decodeFloat32(b []byte, p unsafe.Pointer) ([]byte, error) {
 	if hasNullPrefix(b) {
+		*(*float32)(p) = float32(math.NaN())
 		return b[4:], nil
 	}
 
@@ -245,6 +246,7 @@ func (d decoder) decodeFloat32(b []byte, p unsafe.Pointer) ([]byte, error) {
 
 func (d decoder) decodeFloat64(b []byte, p unsafe.Pointer) ([]byte, error) {
 	if hasNullPrefix(b) {
+		*(*float64)(p) = float64(math.NaN())
 		return b[4:], nil
 	}
 
