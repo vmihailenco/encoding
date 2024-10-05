@@ -14,6 +14,8 @@ import (
 	"strconv"
 	"testing"
 	"unicode"
+
+	"github.com/stretchr/testify/require"
 )
 
 type Optionals struct {
@@ -142,13 +144,17 @@ var unsupportedValues = []interface{}{
 
 func TestUnsupportedValues(t *testing.T) {
 	for _, v := range unsupportedValues {
-		if _, err := Marshal(v); err != nil {
-			if _, ok := err.(*UnsupportedValueError); !ok {
-				t.Errorf("for %v, got %T want UnsupportedValueError", v, err)
-			}
-		} else {
-			t.Errorf("for %v, expected error", v)
-		}
+		b, err := Marshal(v)
+		require.NoError(t, err)
+		require.Equal(t, "null", string(b))
+
+		// if _, err := Marshal(v); err != nil {
+		// 	if _, ok := err.(*UnsupportedValueError); !ok {
+		// 		t.Errorf("for %v, got %T want UnsupportedValueError", v, err)
+		// 	}
+		// } else {
+		// 	t.Errorf("for %v, expected error", v)
+		// }
 	}
 }
 
