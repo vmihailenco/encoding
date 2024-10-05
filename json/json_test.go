@@ -430,32 +430,7 @@ func TestCodecDuration(t *testing.T) {
 		t.Run(testName(v1), func(t *testing.T) {
 			v2 := newValue(v1)
 
-			// encode using stdlib. (will be an int)
-			std, err := json.MarshalIndent(v1, "", "\t")
-			if err != nil {
-				t.Error(err)
-				return
-			}
-			std = append(std, '\n')
-
-			// decode using our decoder. (reads int to duration)
-			dec := NewDecoder(bytes.NewBuffer([]byte(std)))
-
-			if err := dec.Decode(v2.Interface()); err != nil {
-				t.Errorf("%T: %v", err, err)
-				return
-			}
-
-			x1 := v1
-			x2 := v2.Elem().Interface()
-
-			if !reflect.DeepEqual(x1, x2) {
-				t.Error("values mismatch")
-				t.Logf("expected: %#v", x1)
-				t.Logf("found:    %#v", x2)
-			}
-
-			// encoding using our encoder. (writes duration as string)
+			// encoding using our encoder. (writes duration as float64)
 			buf := &bytes.Buffer{}
 			enc := NewEncoder(buf)
 			enc.SetIndent("", "\t")
@@ -470,21 +445,16 @@ func TestCodecDuration(t *testing.T) {
 				t.Error("invalid JSON representation")
 			}
 
-			if reflect.DeepEqual(std, b) {
-				t.Error("encoded durations should not match stdlib")
-				t.Logf("got: %s", b)
-			}
-
-			// decode using our decoder. (reads string to duration)
-			dec = NewDecoder(bytes.NewBuffer([]byte(std)))
+			// decode using our decoder. (reads float64 to duration)
+			dec := NewDecoder(bytes.NewBuffer([]byte(b)))
 
 			if err := dec.Decode(v2.Interface()); err != nil {
 				t.Errorf("%T: %v", err, err)
 				return
 			}
 
-			x1 = v1
-			x2 = v2.Elem().Interface()
+			x1 := v1
+			x2 := v2.Elem().Interface()
 
 			if !reflect.DeepEqual(x1, x2) {
 				t.Error("values mismatch")

@@ -303,10 +303,9 @@ func (e encoder) encodeBytes(b []byte, p unsafe.Pointer) ([]byte, error) {
 }
 
 func (e encoder) encodeDuration(b []byte, p unsafe.Pointer) ([]byte, error) {
-	b = append(b, '"')
-	b = appendDuration(b, *(*time.Duration)(p))
-	b = append(b, '"')
-	return b, nil
+	dur := *(*time.Duration)(p)
+	ms := float64(dur) / float64(time.Millisecond)
+	return e.encodeFloat(b, ms, 64)
 }
 
 func (e encoder) encodeTime(b []byte, p unsafe.Pointer) ([]byte, error) {

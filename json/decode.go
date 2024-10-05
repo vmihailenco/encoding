@@ -447,16 +447,13 @@ func (d decoder) decodeDuration(b []byte, p unsafe.Pointer) ([]byte, error) {
 	// flexible on how durations are formatted, but for the time being, it's
 	// been punted to go2 at the earliest: https://github.com/golang/go/issues/4712
 	if len(b) > 0 && b[0] != '"' {
-		v, r, err := d.parseInt(b, durationType)
+		var ms float64
+		r, err := d.decodeFloat64(b, unsafe.Pointer(&ms))
 		if err != nil {
-			return d.inputError(b, int32Type)
+			return d.inputError(b, durationType)
 		}
 
-		if v < math.MinInt64 || v > math.MaxInt64 {
-			return r, unmarshalOverflow(b[:len(b)-len(r)], int32Type)
-		}
-
-		*(*time.Duration)(p) = time.Duration(v)
+		*(*time.Duration)(p) = time.Duration(ms * float64(time.Millisecond))
 		return r, nil
 	}
 
