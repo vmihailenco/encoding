@@ -77,6 +77,9 @@ const (
 	// known to be valid json (e.g., they were created by json.Unmarshal).
 	TrustRawMessage
 
+	// JavaScriptTime enables encoding time as a float64 containing unix milliseconds.
+	JavaScriptTime
+
 	// appendNewline is a formatting flag to enable the addition of a newline
 	// in Encode (this matches the behavior of the standard encoding/json
 	// package).
@@ -581,6 +584,14 @@ func (enc *Encoder) SetStringifyLargeInts(on bool) {
 		enc.flags |= StringifyLargeInts
 	} else {
 		enc.flags &= ^StringifyLargeInts
+	}
+}
+
+func (enc *Encoder) SetJavaScriptTime(on bool) {
+	if on {
+		enc.flags |= JavaScriptTime
+	} else {
+		enc.flags &= ^JavaScriptTime
 	}
 }
 

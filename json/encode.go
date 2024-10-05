@@ -310,6 +310,10 @@ func (e encoder) encodeDuration(b []byte, p unsafe.Pointer) ([]byte, error) {
 
 func (e encoder) encodeTime(b []byte, p unsafe.Pointer) ([]byte, error) {
 	t := *(*time.Time)(p)
+	if e.flags&JavaScriptTime != 0 {
+		ms := float64(t.Unix())*1000 + float64(t.Nanosecond())/float64(time.Millisecond)
+		return e.encodeFloat(b, ms, 64)
+	}
 	b = append(b, '"')
 	b = t.AppendFormat(b, time.RFC3339Nano)
 	b = append(b, '"')

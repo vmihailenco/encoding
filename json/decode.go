@@ -482,6 +482,20 @@ func (d decoder) decodeTime(b []byte, p unsafe.Pointer) ([]byte, error) {
 		return b[4:], nil
 	}
 
+	if len(b) > 0 && b[0] != '"' {
+		var ms float64
+		r, err := d.decodeFloat64(b, unsafe.Pointer(&ms))
+		if err != nil {
+			return d.inputError(b, timeType)
+		}
+
+		secs := int64(ms / 1000)
+		nsec := (ms - float64(secs)*1000) * float64(time.Millisecond)
+		*(*time.Time)(p) = time.Unix(int64(secs), int64(nsec)).In(time.UTC)
+
+		return r, nil
+	}
+
 	if len(b) < 2 || b[0] != '"' {
 		return d.inputError(b, timeType)
 	}
