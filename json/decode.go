@@ -489,6 +489,11 @@ func (d decoder) decodeTime(b []byte, p unsafe.Pointer) ([]byte, error) {
 			return d.inputError(b, timeType)
 		}
 
+		if ms == 0 {
+			*(*time.Time)(p) = time.Time{}
+			return r, nil
+		}
+
 		secs := int64(ms / 1000)
 		nsec := (ms - float64(secs)*1000) * float64(time.Millisecond)
 		*(*time.Time)(p) = time.Unix(int64(secs), int64(nsec)).In(time.UTC)
