@@ -29,9 +29,6 @@ func CodecFor(t reflect.Type) Codec {
 	c, found := cache[typeid(t)]
 	if !found {
 		c = constructCodec(t, map[reflect.Type]*structType{}, t.Kind() == reflect.Ptr)
-		if inlined(t) {
-			c.encode = constructInlineValueEncodeFunc(c.encode)
-		}
 		cacheStore(t, c, cache)
 	}
 	return c
