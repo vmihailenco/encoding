@@ -1519,6 +1519,26 @@ func (d decoder) decodeTextUnmarshaler(b []byte, p unsafe.Pointer, t reflect.Typ
 	return b, &UnmarshalTypeError{Value: value, Type: reflect.PtrTo(t)}
 }
 
+func (d decoder) decodeJSONParser(b []byte, p unsafe.Pointer, t reflect.Type, pointer bool) ([]byte, error) {
+	u := reflect.NewAt(t, p)
+	if !pointer {
+		u = u.Elem()
+		t = t.Elem()
+	}
+	if u.IsNil() {
+		u.Set(reflect.New(t))
+	}
+
+	tok := &Tokenizer{
+		json:    b,
+		decoder: d,
+	}
+	if err := u.Interface().(Parser).ParseJSON(tok, d.flags); err != nil {
+		return nil, err
+	}
+	return tok.json, nil
+}
+
 func (d decoder) prependField(key, field string) string {
 	if field != "" {
 		return key + "." + field

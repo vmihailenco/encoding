@@ -1014,3 +1014,21 @@ func appendCompactEscapeHTML(dst []byte, src []byte) []byte {
 
 	return dst
 }
+
+func (e encoder) encodeJSONAppender(b []byte, p unsafe.Pointer, t reflect.Type, pointer bool) ([]byte, error) {
+	v := reflect.NewAt(t, p)
+
+	if !pointer {
+		v = v.Elem()
+	}
+
+	switch v.Kind() {
+	case reflect.Ptr, reflect.Interface:
+		if v.IsNil() {
+			return append(b, "null"...), nil
+		}
+	}
+
+	appender := v.Interface().(Appender)
+	return appender.AppendJSON(b, e.flags)
+}

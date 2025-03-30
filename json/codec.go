@@ -223,6 +223,8 @@ func constructCodec(t reflect.Type, seen map[reflect.Type]*structType, canAddr b
 
 	if canAddr {
 		switch {
+		case p.Implements(jsonAppenderType):
+			c.encode = constructJSONAppenderEncodeFunc(t, true)
 		case p.Implements(jsonMarshalerType):
 			c.encode = constructJSONMarshalerEncodeFunc(t, true)
 		case p.Implements(textMarshalerType):
@@ -231,6 +233,8 @@ func constructCodec(t reflect.Type, seen map[reflect.Type]*structType, canAddr b
 	}
 
 	switch {
+	case t.Implements(jsonAppenderType):
+		c.encode = constructJSONAppenderEncodeFunc(t, false)
 	case t.Implements(jsonMarshalerType):
 		c.encode = constructJSONMarshalerEncodeFunc(t, false)
 	case t.Implements(textMarshalerType):
@@ -238,6 +242,8 @@ func constructCodec(t reflect.Type, seen map[reflect.Type]*structType, canAddr b
 	}
 
 	switch {
+	case p.Implements(jsonParserType):
+		c.decode = constructJSONParserDecodeFunc(t, true)
 	case p.Implements(jsonUnmarshalerType):
 		c.decode = constructJSONUnmarshalerDecodeFunc(t, true)
 	case p.Implements(textUnmarshalerType):
@@ -853,6 +859,18 @@ func constructInlineValueEncodeFunc(encode encodeFunc) encodeFunc {
 	}
 }
 
+func constructJSONAppenderEncodeFunc(t reflect.Type, pointer bool) encodeFunc {
+	return func(e encoder, b []byte, p unsafe.Pointer) ([]byte, error) {
+		return e.encodeJSONAppender(b, p, t, pointer)
+	}
+}
+
+func constructJSONParserDecodeFunc(t reflect.Type, pointer bool) decodeFunc {
+	return func(d decoder, b []byte, p unsafe.Pointer) ([]byte, error) {
+		return d.decodeJSONParser(b, p, t, pointer)
+	}
+}
+
 // noescape hides a pointer from escape analysis.  noescape is
 // the identity function but escape analysis doesn't think the
 // output depends on the input. noescape is inlined and currently
@@ -1129,4 +1147,15 @@ var (
 	textUnmarshalerType = reflect.TypeOf((*encoding.TextUnmarshaler)(nil)).Elem()
 
 	bigIntDecoder = constructJSONUnmarshalerDecodeFunc(bigIntType, false)
+
+	jsonAppenderType = reflect.TypeFor[Appender]()
+	jsonParserType   = reflect.TypeFor[Parser]()
 )
+
+type Appender interface {
+	AppendJSON(buf []byte, flags AppendFlags) ([]byte, error)
+}
+
+type Parser interface {
+	ParseJSON(tok *Tokenizer, flags ParseFlags) error
+}
